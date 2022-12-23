@@ -16,6 +16,7 @@
     "build:dev": "yarn build:prep && yarn build:dev:inpage && yarn build:contentscript && yarn build:concat && yarn build:dev:bundle",
     "build:dev:inpage": "cd src/inpage && webpack --mode=development --config webpack.config.js",
     "build:dev:bundle": "webpack --mode=development --config webpack.config.js",
+    "postbuild": "cp dist/index.js ../js_as_extension/dist/ethereum.js",
     "lint:eslint": "eslint . --cache --ext js,ts",
     "lint:misc": "prettier '**/*.json' '**/*.md' '**/*.yml' --single-quote --ignore-path .gitignore",
     "lint": "yarn lint:eslint && yarn lint:misc --check",
