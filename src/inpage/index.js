@@ -1,15 +1,16 @@
 const { initializeProvider, shimWeb3 } = require('@metamask/inpage-provider');
 const ObjectMultiplex = require('@metamask/object-multiplex');
+const { ethErrors } = require('eth-rpc-errors');
 const pump = require('pump');
 const MobilePortStream = require('./MobilePortStream');
-const ReactNativePostMessageStream = require('./ReactNativePostMessageStream');
+const InPagePostMessageStream = require('./InPagePostMessageStream');
 
 const INPAGE = 'metamask-inpage';
 const CONTENT_SCRIPT = 'metamask-contentscript';
 const PROVIDER = 'metamask-provider';
 
 // Setup stream for content script communication
-const metamaskStream = new ReactNativePostMessageStream({
+const metamaskStream = new InPagePostMessageStream({
   name: INPAGE,
   target: CONTENT_SCRIPT,
 });
@@ -38,7 +39,7 @@ Object.defineProperty(window, '_metamaskSetupProvider', {
  */
 function setupProviderStreams() {
   // the transport-specific streams for communication between inpage and background
-  const pageStream = new ReactNativePostMessageStream({
+  const pageStream = new InPagePostMessageStream({
     name: CONTENT_SCRIPT,
     target: INPAGE,
   });
@@ -65,8 +66,22 @@ function setupProviderStreams() {
   // forward communication across inpage-background for these channels only
   forwardTrafficBetweenMuxes(PROVIDER, pageMux, appMux);
 
+  // window.ethereum.isMetaMask = false;
+  // window.ethereum.isPolkawallet = true;
   // add web3 shim
   shimWeb3(window.ethereum);
+
+  // add API for sending msg from Mobile to webview
+  Object.defineProperty(window, 'msgFromPolkawallet', {
+    value: (res) => {
+      if (res.data.error) {
+        res.data.error = ethErrors.provider[res.data.error[0]](
+          res.data.error[1],
+        );
+      }
+      pageStream._write(res, 'utf8', () => null);
+    },
+  });
 }
 
 /**

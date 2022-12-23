@@ -1,6 +1,7 @@
 const { inherits } = require('util');
 const { Duplex } = require('readable-stream');
 
+const EXTENSION_MSG_PATH = 'extensionRequest';
 const noop = () => undefined;
 
 module.exports = MobilePortStream;
@@ -91,15 +92,23 @@ MobilePortStream.prototype._write = function (msg, _encoding, cb) {
     if (Buffer.isBuffer(msg)) {
       const data = msg.toJSON();
       data._isBuffer = true;
-      window.ReactNativeWebView.postMessage(
-        JSON.stringify({ ...data, origin: window.location.href }),
+      // eslint-disable-next-line
+      Extension.postMessage(
+        JSON.stringify({
+          path: EXTENSION_MSG_PATH,
+          data: { ...data, origin: window.location.href },
+        }),
       );
     } else {
       if (msg.data) {
         msg.data.toNative = true;
       }
-      window.ReactNativeWebView.postMessage(
-        JSON.stringify({ ...msg, origin: window.location.href }),
+      // eslint-disable-next-line
+      Extension.postMessage(
+        JSON.stringify({
+          path: EXTENSION_MSG_PATH,
+          data: { ...msg, origin: window.location.href },
+        }),
       );
     }
   } catch (err) {

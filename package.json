@@ -52,6 +52,7 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.4.0",
+    "eth-rpc-errors": "^4.0.3",
     "prettier": "^2.3.0",
     "pump": "^3.0.0",
     "readable-stream": "^2.3.7",
