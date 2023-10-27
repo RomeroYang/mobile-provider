@@ -1,10 +1,11 @@
-const { initializeProvider, shimWeb3 } = require('@metamask/inpage-provider');
+const providers = require('@metamask/providers');
 const ObjectMultiplex = require('@metamask/object-multiplex');
 const { ethErrors } = require('eth-rpc-errors');
 const pump = require('pump');
 const MobilePortStream = require('./MobilePortStream');
 const InPagePostMessageStream = require('./InPagePostMessageStream');
 
+const { initializeProvider, shimWeb3 } = providers;
 const INPAGE = 'metamask-inpage';
 const CONTENT_SCRIPT = 'metamask-contentscript';
 const PROVIDER = 'metamask-provider';
@@ -66,8 +67,8 @@ function setupProviderStreams() {
   // forward communication across inpage-background for these channels only
   forwardTrafficBetweenMuxes(PROVIDER, pageMux, appMux);
 
-  // window.ethereum.isMetaMask = false;
-  // window.ethereum.isPolkawallet = true;
+  window.ethereum.isMetaMask = false;
+  window.ethereum.isPolkawallet = true;
   // add web3 shim
   shimWeb3(window.ethereum);
 
